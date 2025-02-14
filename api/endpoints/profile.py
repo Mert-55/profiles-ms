@@ -16,7 +16,7 @@ from api.utils.docs import responses
 router = APIRouter()
 
 
-@router.get("/profiles/profile/{profile_id}", responses=responses(PublicProfile, ProfileNotFoundError))
+@router.get("/profile/{profile_id}", responses=responses(PublicProfile, ProfileNotFoundError))
 async def get_profile(profile_id: str) -> Any:
     """
     Return a public profile by its unique identifier.
@@ -28,7 +28,7 @@ async def get_profile(profile_id: str) -> Any:
     return await profile.serialize(include_skills=True)
 
 
-@router.get("/profiles/user/{user_id}", responses=admin_responses(Profile))
+@router.get("/user/{user_id}", responses=admin_responses(Profile))
 async def update_profile(user_id: str = get_user(require_self_or_admin=True)) -> Any:
     """
     Return a public profile by user ID. Automatically creates a new profile if none exists.
@@ -43,7 +43,7 @@ async def update_profile(user_id: str = get_user(require_self_or_admin=True)) ->
     return await profile.serialize(include_user_id=True)
 
 
-@router.patch("/profiles/user/{user_id}", responses=admin_responses(Profile))
+@router.patch("/user/{user_id}", responses=admin_responses(Profile))
 async def update_profile(data: UpdateProfile, user_id: str = get_user(require_self_or_admin=True)) -> Any:
     """
     Update existing profile. Automatically creates a new profile if none exists.

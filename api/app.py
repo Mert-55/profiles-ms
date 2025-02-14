@@ -14,7 +14,6 @@ from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from .database import db, db_context
 from .endpoints import ROUTER, TAGS
@@ -23,7 +22,6 @@ from .settings import settings
 from .utils.debug import check_responses
 from .utils.docs import add_endpoint_links_to_openapi_docs
 from .version import get_version
-from .models import Evaluation
 
 T = TypeVar("T")
 
@@ -80,24 +78,6 @@ async def rollback_on_exception(request: Request, exc: HTTPException) -> Respons
 @app.on_event("startup")
 async def on_startup() -> None:
     setup_app()
-
-    scheduler = AsyncIOScheduler()
-
-    async def run_train_model_by_expired_evaluations():
-        logger.info("Checking for expired evaluations...")
-        try:
-            async with db_context():
-                await Evaluation.train_model_by_expired_evaluations()
-        except Exception as e:
-            logger.error(f"Error in train_model_by_expired_evaluations: {e}")
-
-    scheduler.add_job(
-        run_train_model_by_expired_evaluations,
-        "interval",
-        minutes=1,
-    )
-    scheduler.start()
-    logger.info("Scheduler started.")
 
 
 @app.on_event("shutdown")
