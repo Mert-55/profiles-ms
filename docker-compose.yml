@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  profiles-ms:
+    build: .
+    restart: always
+    env_file: .env
+    networks:
+      - profiles-network
+    depends_on:
+      - db-profiles
+    ports:
+      - "8001:8001"
+
+  redis-profiles:
+    image: redis:alpine
+    restart: always
+    networks:
+      - profiles-network
+    ports:
+      - "6379:6379"
+
+  db-profiles:
+    image: mariadb:latest
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_USER: profiles
+      MYSQL_PASSWORD: profiles
+      MYSQL_DATABASE: profiles
+      MYSQL_ROOT_PASSWORD: profiles
+      MYSQL_INITDB_SKIP_TZINFO: 1
+    volumes:
+      - ./data/mariadb:/var/lib/mysql
+    networks:
+     - profiles-network
+
+networks:
+  profiles-network:
+    driver: "bridge"
