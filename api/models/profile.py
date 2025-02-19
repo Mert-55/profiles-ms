@@ -1,14 +1,15 @@
 import json
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, String, Text
 from sqlalchemy.orm import Mapped
 from sqlalchemy.sql import Select
+from sqlalchemy.testing import exclude
 
 from api.database import Base, db, select
-from api.services.auth import get_name
-from api.services.skills import get_skill_levels, get_skills
+from api.services.auth import get_user_info
+from api.services.skills import get_skill_levels, get_skills, get_profile_skills
 
 
 class Profile(Base):
@@ -19,22 +20,22 @@ class Profile(Base):
 
     public: Mapped[bool] = Column(Boolean, default=False, nullable=False)
 
-    async def serialize(self, include_user_id: bool = False, include_skills: bool =False) -> dict[str, Any]:
-        skills = await get_skills() or {}
-        leveled_skills = await get_skill_levels(self.user_id) or {}
+    async def serialize(self, include_user: bool = False, include_skills: bool = False) -> dict[str, Any]:
+        _leveled_skills = len(await get_skill_levels(self.user_id) or {})
+        user = await get_user_info(self.user_id) or {}
 
         profile: dict[str, Any] = {
             "id": self.id,
             "public": self.public,
-            "name": await get_name(self.user_id) or ""
+            "name": user.name or "",
+            "total_skills": _leveled_skills,
         }
 
-        if include_user_id:
-            profile["user_id"] = self.user_id
+        if include_user:
+            profile["user"] = user.dict(
+                exclude={"name"}) if user.name else user
         if include_skills:
-            profile["skills"] = [
-                {**vars(skills.get(skill)), "level": level} for skill, level in leveled_skills.items() if level > 0
-            ]
+            profile["root_skills"] = await get_profile_skills(self.user_id)
 
         return profile
 

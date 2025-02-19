@@ -1,5 +1,5 @@
 
-### GET `/profiles/{profile_id}`
+### GET `/profiles/profile/{profile_id}`
 
 Publicly available. This endpoint returns a public profile by its unique identifier.
 
@@ -7,33 +7,46 @@ Publicly available. This endpoint returns a public profile by its unique identif
 
 ```json
 {
-    "id": "8d450450-717f-4b0d-931f-71e9acb4a444",
+    "id": "368498e3-4254-4212-9319-228d0e589168",
     "public": true,
-    "name": "mert55",
-    "skills": [
+    "name": "admin",
+    "total_skills": 2,
+    "user": {
+        "registration": 1739643143,
+        "description": "🔥 Test Bio 🔥",
+        "avatar_url": "https://www.gravatar.com/avatar/a2d6a7ecb918ece4f84f524b38969f75",
+        "tags": [
+            "TestModeActivated",
+            "BreakingLimits",
+            "NoRoomForErrors"
+        ]
+    },
+    "root_skills": [
         {
-            "id": "fortgeschrittene_algorithmen_und_datenstrukturen",
-            "parent_id": "algorithmiker",
-            "name": "Fortgeschrittene Algorithmen und Datenstrukturen",
-            "dependencies": [],
-            "dependents": [],
-            "level": 2
+            "skill": "mobile_app_developer",
+            "skills": [
+                {
+                    "skill": "kotlin_native_app_developer",
+                    "level": 9
+                }
+            ]
         },
         {
-            "id": "graphentheorie",
-            "parent_id": "algorithmiker",
-            "name": "Graphentheorie",
-            "dependencies": [],
-            "dependents": [],
-            "level": 5
+            "skill": "datenbank_experte",
+            "skills": [
+                {
+                    "skill": "postgresql",
+                    "level": 27
+                }
+            ]
         }
     ]
 }
 ```
 
-### PATCH `/profiles/{user_id}`
+### PUT `/profiles/user/me/public-status`
 
-The profile can only be updated by the users themselves or by an admin.
+The profile-status can be replaced by the users themselves or by an admin.
 
 #### Request Example
 
@@ -47,28 +60,25 @@ The profile can only be updated by the users themselves or by an admin.
 
 ```json
 {
-    "id": "8d450450-717f-4b0d-931f-71e9acb4a444",
-    "public": true,
-    "name": "mert55",
-    "user_id": "f8da7102-2124-40e0-87ba-026ba700ffd3",
-    "skills": [
-        {
-            "id": "fortgeschrittene_algorithmen_und_datenstrukturen",
-            "parent_id": "algorithmiker",
-            "name": "Fortgeschrittene Algorithmen und Datenstrukturen",
-            "dependencies": [],
-            "dependents": [],
-            "level": 2
-        },
-        {
-            "id": "graphentheorie",
-            "parent_id": "algorithmiker",
-            "name": "Graphentheorie",
-            "dependencies": [],
-            "dependents": [],
-            "level": 5
-        }
-    ]
+    "id": "368498e3-4254-4212-9319-228d0e589168",
+    "public": false,
+    "name": "admin",
+    "total_skills": 2
+}
+```
+
+### GET `/profiles/user/me/public-status`
+
+Use user ID or the 'me' phrase to get profile status. If there is no profile, one will be initialized.
+
+#### Response Example
+
+```json
+{
+    "id": "368498e3-4254-4212-9319-228d0e589168",
+    "public": false,
+    "name": "admin",
+    "total_skills": 2
 }
 ```
 

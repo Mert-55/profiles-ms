@@ -11,8 +11,8 @@ class Settings(BaseSettings):
     port: int = 8001
     root_path: str = "/profiles"
 
-    auth_url: str = "http://auth-ms"
-    skills_url: str = "http://skills-ms"
+    auth_url: str = "http://auth-ms:8000"
+    skills_url: str = "http://skills-ms:8002"
 
     debug: bool = False
     reload: bool = False
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     sql_show_statements: bool = False
 
     auth_redis_url: str = Field("redis://redis-auth:6379/0", regex=r"^redis://.*$")
-    redis_url: str = Field("redis://redis-profiles:6379/1", regex=r"^redis://.*$")
+    redis_url: str = Field("redis://redis-profiles:6379/0", regex=r"^redis://.*$")
 
     sentry_dsn: str | None = None
 

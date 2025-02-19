@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from api import models
 from api.auth import get_user
 from api.database import db
-from api.exceptions.auth import admin_responses
+from api.exceptions.auth import admin_responses, user_responses
 from api.exceptions.profile import ProfileNotFoundError
 from api.schemas.profile import Profile, PublicProfile, UpdateProfile
 from api.utils.docs import responses
@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.get("/profile/{profile_id}", responses=responses(PublicProfile, ProfileNotFoundError))
-async def get_profile(profile_id: str) -> Any:
+async def get_public_profile(profile_id: str) -> Any:
     """
     Return a public profile by its unique identifier.
     """
@@ -25,11 +25,11 @@ async def get_profile(profile_id: str) -> Any:
     if not (profile := await db.get(models.Profile, id=profile_id)) or profile.public is False:
         raise ProfileNotFoundError
 
-    return await profile.serialize(include_skills=True)
+    return await profile.serialize(include_skills=True, include_user=True)
 
 
-@router.get("/user/{user_id}", responses=admin_responses(Profile))
-async def update_profile(user_id: str = get_user(require_self_or_admin=True)) -> Any:
+@router.get("/user/{user_id}/public-status", responses=user_responses(Profile))
+async def get_public_status(user_id: str = get_user(require_self_or_admin=True)) -> Any:
     """
     Return a public profile by user ID. Automatically creates a new profile if none exists.
 
@@ -40,11 +40,11 @@ async def update_profile(user_id: str = get_user(require_self_or_admin=True)) ->
         if (exist_profile := await db.first(models.Profile.filter_by_user_id(user_id)))
         else await models.Profile.create(user_id=user_id)
     )
-    return await profile.serialize(include_user_id=True)
+    return await profile.serialize()
 
 
-@router.patch("/user/{user_id}", responses=admin_responses(Profile))
-async def update_profile(data: UpdateProfile, user_id: str = get_user(require_self_or_admin=True)) -> Any:
+@router.put("/user/{user_id}/public-status", responses=user_responses(Profile))
+async def replace_public_status(data: UpdateProfile, user_id: str = get_user(require_self_or_admin=True)) -> Any:
     """
     Update existing profile. Automatically creates a new profile if none exists.
 
@@ -59,4 +59,4 @@ async def update_profile(data: UpdateProfile, user_id: str = get_user(require_se
     elif profile.public != public:
         profile.public = public
 
-    return await profile.serialize(include_user_id=True)
+    return await profile.serialize()
