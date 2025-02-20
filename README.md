@@ -61,7 +61,7 @@ The profile-status can be replaced by the users themselves or by an admin.
 ```json
 {
     "id": "368498e3-4254-4212-9319-228d0e589168",
-    "public": false,
+    "public": true,
     "name": "admin",
     "total_skills": 2
 }
